@@ -36,7 +36,7 @@ def setup_single():
 
 
 def test_version():
-    assert __version__ == "0.9.1"
+    assert __version__ == "0.9.2"
 
 
 def test_query_stop_interval_start():
