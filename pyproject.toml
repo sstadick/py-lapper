@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "py_lapper"
-version = "0.1.0"
-description = ""
+version = "0.9.0"
+description = "A pure python port of nim-lapper."
 authors = ["Seth Stadick <sstadick@gmail.com>"]
 
 [tool.poetry.dependencies]
@@ -9,8 +9,6 @@ python = "^3.6"
 
 [tool.poetry.dev-dependencies]
 pytest = "^3.0"
-black = "^19.10b0"
-mypy = "^0.761"
 
 [build-system]
 requires = ["poetry>=0.12"]

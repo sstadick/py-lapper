@@ -1,6 +1,6 @@
 import pytest
 from py_lapper import __version__
-from py_lapper.lib import Lapper, Interval, Cursor
+from py_lapper import Lapper, Interval, Cursor
 
 
 def setup_nonoverlapping():
