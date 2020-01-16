@@ -35,9 +35,6 @@ def setup_single():
     return Lapper([Interval(10, 35, 0)])
 
 
-# TESTS
-
-
 def test_version():
     assert __version__ == "0.1.0"
 
@@ -49,106 +46,96 @@ def test_query_stop_interval_start():
         next(lapper.find(15, 20))
     with pytest.raises(StopIteration):
         next(lapper.seek(15, 20, cursor))
-    # assert len(list(lapper.find(15, 20))) == lapper.count(15, 20)
 
-    # // Test that a query stop that hits an interval start returns no interval
-    # #[test]
-    # fn test_query_stop_interval_start() {
-    # let lapper = setup_nonoverlapping();
-    # let mut cursor = 0;
-    # assert_eq!(None, lapper.find(15, 20).next());
-    # assert_eq!(None, lapper.seek(15, 20, &mut cursor).next());
-    # assert_eq!(lapper.find(15, 20).count(), lapper.count(15, 20));
-    # }
 
-    # // Test that a query start that hits an interval end returns no interval
-    # #[test]
-    # fn test_query_start_interval_stop() {
-    # let lapper = setup_nonoverlapping();
-    # let mut cursor = 0;
-    # assert_eq!(None, lapper.find(30, 35).next());
-    # assert_eq!(None, lapper.seek(30, 35, &mut cursor).next());
-    # assert_eq!(lapper.find(30, 35).count(), lapper.count(30, 35));
-    # }
+def test_query_start_interval_stop():
+    lapper = setup_nonoverlapping()
+    cursor = Cursor(0)
+    with pytest.raises(StopIteration):
+        next(lapper.find(30, 35))
+    with pytest.raises(StopIteration):
+        next(lapper.seek(30, 35, cursor))
 
-    # // Test that a query that overlaps the start of an interval returns that interval
-    # #[test]
-    # fn test_query_overlaps_interval_start() {
-    # let lapper = setup_nonoverlapping();
-    # let mut cursor = 0;
-    # let expected = Iv {
-    # start: 20,
-    # stop: 30,
-    # val: 0,
-    # };
-    # assert_eq!(Some(&expected), lapper.find(15, 25).next());
-    # assert_eq!(Some(&expected), lapper.seek(15, 25, &mut cursor).next());
-    # assert_eq!(lapper.find(15, 25).count(), lapper.count(15, 25));
-    # }
 
-    # // Test that a query that overlaps the stop of an interval returns that interval
-    # #[test]
-    # fn test_query_overlaps_interval_stop() {
-    # let lapper = setup_nonoverlapping();
-    # let mut cursor = 0;
-    # let expected = Iv {
-    # start: 20,
-    # stop: 30,
-    # val: 0,
-    # };
-    # assert_eq!(Some(&expected), lapper.find(25, 35).next());
-    # assert_eq!(Some(&expected), lapper.seek(25, 35, &mut cursor).next());
-    # assert_eq!(lapper.find(25, 35).count(), lapper.count(25, 35));
-    # }
+def test_query_overlaps_interval_start():
+    lapper = setup_nonoverlapping()
+    cursor = Cursor(0)
+    expected = Interval(20, 30, 0)
 
-    # // Test that a query that is enveloped by interval returns interval
-    # #[test]
-    # fn test_interval_envelops_query() {
-    # let lapper = setup_nonoverlapping();
-    # let mut cursor = 0;
-    # let expected = Iv {
-    # start: 20,
-    # stop: 30,
-    # val: 0,
-    # };
-    # assert_eq!(Some(&expected), lapper.find(22, 27).next());
-    # assert_eq!(Some(&expected), lapper.seek(22, 27, &mut cursor).next());
-    # assert_eq!(lapper.find(22, 27).count(), lapper.count(22, 27));
-    # }
+    assert expected == next(lapper.find(15, 25))
+    assert expected == next(lapper.seek(15, 25, cursor))
 
-    # // Test that a query that envolops an interval returns that interval
-    # #[test]
-    # fn test_query_envolops_interval() {
-    # let lapper = setup_nonoverlapping();
-    # let mut cursor = 0;
-    # let expected = Iv {
-    # start: 20,
-    # stop: 30,
-    # val: 0,
-    # };
-    # assert_eq!(Some(&expected), lapper.find(15, 35).next());
-    # assert_eq!(Some(&expected), lapper.seek(15, 35, &mut cursor).next());
-    # assert_eq!(lapper.find(15, 35).count(), lapper.count(15, 35));
-    # }
 
-    # #[test]
-    # fn test_overlapping_intervals() {
-    # let lapper = setup_overlapping();
-    # let mut cursor = 0;
-    # let e1 = Iv {
-    # start: 0,
-    # stop: 15,
-    # val: 0,
-    # };
-    # let e2 = Iv {
-    # start: 10,
-    # stop: 25,
-    # val: 0,
-    # };
-    # assert_eq!(vec![&e1, &e2], lapper.find(8, 20).collect::<Vec<&Iv>>());
-    # assert_eq!(
-    # vec![&e1, &e2],
-    # lapper.seek(8, 20, &mut cursor).collect::<Vec<&Iv>>()
-    # );
-    # assert_eq!(lapper.count(8, 20), 2);
-    # }
+def test_query_overlaps_interval_stop():
+    """ Test that a query that overlaps the stop of an interval returns that interval"""
+    lapper = setup_nonoverlapping()
+    cursor = Cursor(0)
+    expected = Interval(20, 30, 0)
+
+    assert expected == next(lapper.find(25, 35))
+    assert expected == next(lapper.seek(25, 35, cursor))
+
+
+def test_interval_envelops_query():
+    """Test that a query that is enveloped by interval returns interval"""
+    lapper = setup_nonoverlapping()
+    cursor = Cursor(0)
+    expected = Interval(20, 30, 0)
+
+    assert expected == next(lapper.find(22, 27))
+    assert expected == next(lapper.seek(22, 27, cursor))
+
+
+def test_query_envelops_interval():
+    """Test that a query that envolops an interval returns that interval"""
+    lapper = setup_nonoverlapping()
+    cursor = Cursor(0)
+    expected = Interval(20, 30, 0)
+
+    assert expected == next(lapper.find(15, 35))
+    assert expected == next(lapper.seek(15, 35, cursor))
+
+
+def test_overlapping_intervals():
+    """Test interval overlaps are working properly"""
+    lapper = setup_overlapping()
+    cursor = Cursor(0)
+    e1 = Interval(0, 15, 0)
+    e2 = Interval(10, 25, 0)
+    assert [e1, e2] == list(lapper.find(8, 20))
+    assert [e1, e2] == list(lapper.seek(8, 20, cursor))
+
+
+def test_seek_over_len():
+    """Test that it's not possible to induce index out of bounds by pushing the cursor past the end of the lapper."""
+    lapper = setup_nonoverlapping()
+    single = setup_single()
+    cursor = Cursor(0)
+
+    for interval in lapper.intervals:
+        for o_interval in single.seek(interval.start, interval.stop, cursor):
+            print(o_interval)
+
+
+def test_find_over_behind_first_match():
+    """Test that if lower_bound puts us before the first match, we still return a match"""
+    lapper = setup_bad_lapper()
+    e1 = Interval(50, 55, 0)
+    found = next(lapper.find(50, 55))
+    assert found == e1
+
+
+def test_bad_skips():
+    """When there is a very long interval that spans many little intervals, test that the little intevals still get returne properly"""
+    data = [
+        Interval(25264912, 25264986, 0),
+        Interval(27273024, 27273065, 0),
+        Interval(27440273, 27440318, 0),
+        Interval(27488033, 27488125, 0),
+        Interval(27938410, 27938470, 0),
+        Interval(27959118, 27959171, 0),
+        Interval(28866309, 33141404, 0),
+    ]
+    lapper = Lapper(data)
+    found = list(lapper.find(28974798, 33141355))
+    assert found == [Interval(28866309, 33141404, 0)]

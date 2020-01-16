@@ -47,6 +47,9 @@ class Interval(object):
                 return True
         return False
 
+    def __eq__(self, other):
+        return self.start == other.start and self.stop == other.stop
+
     def __repr__(self):
         return f"Interval({self.start}, {self.stop}, {self.val})"
 
@@ -60,7 +63,7 @@ class Lapper(object):
         self.cursor = 0
 
     @staticmethod
-    def _find_max_len(intervals: Sequence[Interval]):
+    def _find_max_len(intervals):
         """Find the max length in the list of intervals.
         """
         max_len = 0
