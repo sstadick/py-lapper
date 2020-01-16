@@ -1,5 +1,6 @@
 class Cursor(object):
-    __slots__ = ['index']
+    __slots__ = ["index"]
+
     def __init__(self, cursor):
         self.index = cursor
 
@@ -8,16 +9,17 @@ class Cursor(object):
 
     def set(self, val):
         self.index = val
-    
+
     def val(self):
         return self.index
 
     def __repr__(self):
         return f"Cursor({self.index})"
 
+
 class Interval(object):
-    __slots__ = ['start', 'stop', 'val']
-    
+    __slots__ = ["start", "stop", "val"]
+
     def __init__(self, start, stop, val):
         self.start = start
         self.stop = stop
@@ -44,21 +46,21 @@ class Interval(object):
             if self.stop < other.stop:
                 return True
         return False
-    
+
     def __repr__(self):
         return f"Interval({self.start}, {self.stop}, {self.val})"
 
-class Lapper(object):
 
+class Lapper(object):
     def __init__(self, intervals):
         self.intervals = sorted(intervals)
         self.max_len = self._find_max_len(intervals)
         self.cov = None
         self.overlaps_merged = False
         self.cursor = 0
-    
+
     @staticmethod
-    def _find_max_len(intervals):
+    def _find_max_len(intervals: Sequence[Interval]):
         """Find the max length in the list of intervals.
         """
         max_len = 0
@@ -77,7 +79,7 @@ class Lapper(object):
         low = 0
 
         while size > 0:
-            half = size // 2 
+            half = size // 2
             other_half = size - half
             probe = low + half
             other_low = low + other_half
@@ -99,12 +101,17 @@ class Lapper(object):
 
     def seek(self, start, stop, cursor):
         """Find overlaps when querying in a known sequential order.
-        TODO: Add mypy
         """
-        if cursor.val() == 0 or (cursor.val() < len(self.intervals) and self.intervals[cursor.val()].start > start):
+        if cursor.val() == 0 or (
+            cursor.val() < len(self.intervals)
+            and self.intervals[cursor.val()].start > start
+        ):
             cursor.set(self.lower_bound((start - self.max_len), self.intervals))
 
-        while cursor.val() + 1 < len(self.intervals) and self.intervals[cursor.val() + 1].start < start - self.max_len:
+        while (
+            cursor.val() + 1 < len(self.intervals)
+            and self.intervals[cursor.val() + 1].start < start - self.max_len
+        ):
             cursor.inc()
 
         while cursor.val() < len(self.intervals):
