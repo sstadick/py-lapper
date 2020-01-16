@@ -1,6 +1,6 @@
 # py_lapper
 [![PyPI version](https://badge.fury.io/py/py-lapper.svg)](https://badge.fury.io/py/py-lapper)
-[![Coverage](./coverage.svg)]
+[!Coverage](./coverage.svg)]
 
 
 A pure python port of [nim-lapper](https://github.com/brentp/nim-lapper). Please also see the rust lib, [rust-lapper](https://crates.io/crates/rust-lapper)
