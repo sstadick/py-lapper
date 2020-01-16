@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "py_lapper"
-version = "0.9.0"
+version = "0.9.1"
 description = "A pure python port of nim-lapper."
 authors = ["Seth Stadick <sstadick@gmail.com>"]
 license = "MIT"
