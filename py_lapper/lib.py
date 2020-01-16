@@ -1,37 +1,43 @@
+from __future__ import annotations
+from typing import TypeVar, Generic, Iterable, Sequence, Iterator
+
+T = TypeVar("T")
+
+
 class Cursor(object):
     __slots__ = ["index"]
 
-    def __init__(self, cursor):
+    def __init__(self, cursor: int) -> None:
         self.index = cursor
 
-    def inc(self):
+    def inc(self) -> None:
         self.index += 1
 
-    def set(self, val):
+    def set(self, val) -> None:
         self.index = val
 
-    def val(self):
+    def val(self) -> int:
         return self.index
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Cursor({self.index})"
 
 
-class Interval(object):
+class Interval(Generic[T]):
     __slots__ = ["start", "stop", "val"]
 
-    def __init__(self, start, stop, val):
+    def __init__(self, start: int, stop: int, val: T):
         self.start = start
         self.stop = stop
         self.val = val
 
-    def overlap(self, other):
+    def overlap(self, other: Interval[T]) -> bool:
         return self.start < other.stop and self.stop > other.start
 
-    def overlap_pos(self, start, stop):
+    def overlap_pos(self, start: int, stop: int) -> bool:
         return self.start < stop and self.stop > start
 
-    def __gt__(self, other):
+    def __gt__(self, other: Interval[T]) -> bool:
         if self.start > other.start:
             return True
         elif self.start == other.start:
@@ -39,7 +45,7 @@ class Interval(object):
                 return True
         return False
 
-    def __lt__(self, other):
+    def __lt__(self, other: Interval[T]) -> bool:
         if self.start < other.start:
             return True
         elif self.start == other.start:
@@ -47,15 +53,17 @@ class Interval(object):
                 return True
         return False
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Interval):
+            return NotImplemented
         return self.start == other.start and self.stop == other.stop
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Interval({self.start}, {self.stop}, {self.val})"
 
 
 class Lapper(object):
-    def __init__(self, intervals):
+    def __init__(self, intervals: Sequence[Interval[T]]) -> None:
         self.intervals = sorted(intervals)
         self.max_len = self._find_max_len(intervals)
         self.cov = None
@@ -63,7 +71,7 @@ class Lapper(object):
         self.cursor = 0
 
     @staticmethod
-    def _find_max_len(intervals):
+    def _find_max_len(intervals: Iterable[Interval[T]]) -> int:
         """Find the max length in the list of intervals.
         """
         max_len = 0
@@ -75,7 +83,7 @@ class Lapper(object):
         return max_len
 
     @staticmethod
-    def lower_bound(start, intervals):
+    def lower_bound(start: int, intervals: Sequence[Interval[T]]) -> int:
         """Find the lowest index that we should start searching from.
         """
         size = len(intervals)
@@ -91,7 +99,7 @@ class Lapper(object):
             low = other_low if v.start < start else low
         return low
 
-    def find(self, start, stop):
+    def find(self, start: int, stop: int) -> Iterator[Interval[T]]:
         offset = self.lower_bound(start - self.max_len, self.intervals)
 
         while offset < len(self.intervals):
@@ -102,7 +110,7 @@ class Lapper(object):
             elif interval.start >= stop:
                 break
 
-    def seek(self, start, stop, cursor):
+    def seek(self, start: int, stop: int, cursor: Cursor) -> Iterator[Interval[T]]:
         """Find overlaps when querying in a known sequential order.
         """
         if cursor.val() == 0 or (

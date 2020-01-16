@@ -39,6 +39,26 @@ def test_version():
     assert __version__ == "0.9.2"
 
 
+def test_lower_bound():
+    """Test that the rightmost index starting from the left is found for hte start given"""
+    lapper = setup_bad_lapper()
+    rightmost = lapper.lower_bound(38, lapper.intervals)
+    assert rightmost == 4
+
+
+def test_benchmark_lower_bound(benchmark):
+    """Test that the rightmost index starting from the left is found for hte start given"""
+
+    def bench_lower():
+        found = lapper.lower_bound(499_999, intervals)
+        return found
+
+    lapper = setup_bad_lapper()
+    intervals = [Interval(x, x + 10, 0) for x in range(0, 10000000, 20)]
+    rightmost = benchmark(bench_lower)
+    assert rightmost == 25000
+
+
 def test_query_stop_interval_start():
     lapper = setup_nonoverlapping()
     cursor = Cursor(0)
