@@ -40,6 +40,10 @@ found = [iv for iv in lapper.seek(5, 7, cursor)]
 
 # Changelog
 
+1/17/2020 -- `0.9.4`
+
+    * Fix bug with seek where it skipped last match
+
 1/16/2020 -- `0.9.3`
 
     * Added type hints
