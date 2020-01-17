@@ -12,8 +12,6 @@ Welcome to py-lapper's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
-
 Indices and tables
 ==================
 

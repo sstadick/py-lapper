@@ -87,7 +87,7 @@ def test_query_overlaps_interval_start():
 
 
 def test_query_overlaps_interval_stop():
-    """ Test that a query that overlaps the stop of an interval returns that interval"""
+    """Test that a query that overlaps the stop of an interval returns that interval"""
     lapper = setup_nonoverlapping()
     cursor = Cursor(0)
     expected = Interval(20, 30, 0)
