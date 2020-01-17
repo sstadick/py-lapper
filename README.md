@@ -34,3 +34,10 @@ found = [iv for iv in lapper.seek(5, 7, cursor)]
 # found = [Interval(4, 8, True)]
 # cursor = Cursor(3)
 ```
+
+# Changelog
+
+1/16/2020 -- `0.9.3`
+
+    * Added type hints
+    * Added documentation
