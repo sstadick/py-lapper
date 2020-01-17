@@ -12,18 +12,6 @@ class Cursor(object):
     def __init__(self, cursor: int) -> None:
         self.index = cursor
 
-    def inc(self) -> None:
-        """Increment the cursor."""
-        self.index += 1
-
-    def set(self, val) -> None:
-        """Set the cursor."""
-        self.index = val
-
-    def val(self) -> int:
-        """Return the current value of the cursor"""
-        return self.index
-
     def __repr__(self) -> str:
         """Return the string representation of the cursor."""
         return f"Cursor({self.index})"
@@ -100,6 +88,10 @@ class Lapper(object):
         self.overlaps_merged = False
         self.cursor = 0
 
+    def __iter__(self) -> Iterable[Interval[T]]:
+        """Iterator over intervals in Lapper."""
+        return (i for i in self.intervals)
+
     @staticmethod
     def _find_max_len(intervals: Iterable[Interval[T]]) -> int:
         """Find the max length in the list of intervals."""
@@ -134,10 +126,10 @@ class Lapper(object):
         while offset < len(self.intervals):
             interval = self.intervals[offset]
             offset += 1
-            if interval.overlap_pos(start, stop):
-                yield interval
-            elif interval.start >= stop:
+            if interval.start >= stop:
                 break
+            elif interval.overlap_pos(start, stop):
+                yield interval
 
     def seek(self, start: int, stop: int, cursor: Cursor) -> Iterator[Interval[T]]:
         """Iterate over Intervals that overlap the input `start` and `stop` site.
@@ -145,22 +137,23 @@ class Lapper(object):
         The cursor tracks the position so that the lower_bound does not need to be
         found for each new query. 
         """
-        if cursor.val() == 0 or (
-            cursor.val() < len(self.intervals)
-            and self.intervals[cursor.val()].start > start
+        if cursor.index == 0 or (
+            cursor.index < len(self.intervals)
+            and self.intervals[cursor.index].start > start
         ):
-            cursor.set(self.lower_bound((start - self.max_len), self.intervals))
+            cursor.index = self.lower_bound((start - self.max_len), self.intervals)
 
         while (
-            cursor.val() + 1 < len(self.intervals)
-            and self.intervals[cursor.val() + 1].start < start - self.max_len
+            cursor.index + 1 < len(self.intervals)
+            and self.intervals[cursor.index + 1].start < start - self.max_len
         ):
-            cursor.inc()
+            cursor.index += 1
+        offset = cursor.index
 
-        while cursor.val() < len(self.intervals):
-            interval = self.intervals[cursor.val()]
-            cursor.inc()
-            if interval.overlap_pos(start, stop):
-                yield interval
-            elif interval.start >= stop:
+        while offset < len(self.intervals):
+            interval = self.intervals[offset]
+            offset += 1
+            if offset >= stop:
                 break
+            elif interval.overlap_pos(start, stop):
+                yield interval

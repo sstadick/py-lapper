@@ -36,7 +36,7 @@ def setup_single():
 
 
 def test_version():
-    assert __version__ == "0.9.3"
+    assert __version__ == "0.9.4"
 
 
 def test_lower_bound():
@@ -46,17 +46,17 @@ def test_lower_bound():
     assert rightmost == 4
 
 
-def test_benchmark_lower_bound(benchmark):
-    """Test that the rightmost index starting from the left is found for hte start given"""
+# def test_benchmark_lower_bound(benchmark):
+#     """Test that the rightmost index starting from the left is found for hte start given"""
 
-    def bench_lower():
-        found = lapper.lower_bound(499_999, intervals)
-        return found
+#     def bench_lower():
+#         found = lapper.lower_bound(499_999, intervals)
+#         return found
 
-    lapper = setup_bad_lapper()
-    intervals = [Interval(x, x + 10, 0) for x in range(0, 10000000, 20)]
-    rightmost = benchmark(bench_lower)
-    assert rightmost == 25000
+#     lapper = setup_bad_lapper()
+#     intervals = [Interval(x, x + 10, 0) for x in range(0, 10000000, 20)]
+#     rightmost = benchmark(bench_lower)
+#     assert rightmost == 25000
 
 
 def test_query_stop_interval_start():
@@ -84,6 +84,7 @@ def test_query_overlaps_interval_start():
 
     assert expected == next(lapper.find(15, 25))
     assert expected == next(lapper.seek(15, 25, cursor))
+    assert list(lapper.find(15, 25)) == list(lapper.seek(15, 25, Cursor(0)))
 
 
 def test_query_overlaps_interval_stop():
@@ -94,6 +95,7 @@ def test_query_overlaps_interval_stop():
 
     assert expected == next(lapper.find(25, 35))
     assert expected == next(lapper.seek(25, 35, cursor))
+    assert list(lapper.find(25, 35)) == list(lapper.seek(25, 35, Cursor(0)))
 
 
 def test_interval_envelops_query():
@@ -104,6 +106,7 @@ def test_interval_envelops_query():
 
     assert expected == next(lapper.find(22, 27))
     assert expected == next(lapper.seek(22, 27, cursor))
+    assert list(lapper.find(22, 27)) == list(lapper.seek(22, 27, Cursor(0)))
 
 
 def test_query_envelops_interval():
@@ -114,6 +117,7 @@ def test_query_envelops_interval():
 
     assert expected == next(lapper.find(15, 35))
     assert expected == next(lapper.seek(15, 35, cursor))
+    assert list(lapper.find(15, 35)) == list(lapper.seek(15, 35, Cursor(0)))
 
 
 def test_overlapping_intervals():
@@ -124,6 +128,7 @@ def test_overlapping_intervals():
     e2 = Interval(10, 25, 0)
     assert [e1, e2] == list(lapper.find(8, 20))
     assert [e1, e2] == list(lapper.seek(8, 20, cursor))
+    assert list(lapper.find(8, 20)) == list(lapper.seek(8, 20, Cursor(0)))
 
 
 def test_seek_over_len():
@@ -143,6 +148,27 @@ def test_find_over_behind_first_match():
     e1 = Interval(50, 55, 0)
     found = next(lapper.find(50, 55))
     assert found == e1
+    assert list(lapper.find(50, 55)) == list(lapper.seek(50, 55, Cursor(0)))
+
+
+def test_find_over_nonoverlapping():
+    """Test that seeking for all intervals over self == len(self)"""
+    lapper = setup_nonoverlapping()
+    total = 0
+    for iv in lapper:
+        total += sum(1 for _ in lapper.find(iv.start, iv.stop))
+    assert total == len(lapper.intervals)
+
+
+def test_seek_over_nonoverlapping():
+    """Test that seeking for all intervals over self == len(self)"""
+    lapper = setup_nonoverlapping()
+    cursor = Cursor(0)
+    total = 0
+    for iv in lapper:
+        for fiv in lapper.seek(iv.start, iv.stop, cursor):
+            total += 1
+    assert total == len(lapper.intervals)
 
 
 def test_bad_skips():
@@ -159,3 +185,7 @@ def test_bad_skips():
     lapper = Lapper(data)
     found = list(lapper.find(28974798, 33141355))
     assert found == [Interval(28866309, 33141404, 0)]
+    assert list(lapper.find(28974798, 33141355)) == list(
+        lapper.seek(28974798, 33141355, Cursor(0))
+    )
+
