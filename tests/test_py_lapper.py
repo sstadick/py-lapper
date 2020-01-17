@@ -36,7 +36,7 @@ def setup_single():
 
 
 def test_version():
-    assert __version__ == "0.9.2"
+    assert __version__ == "0.9.3"
 
 
 def test_lower_bound():
