@@ -36,7 +36,7 @@ def setup_single():
 
 
 def test_version():
-    assert __version__ == "0.9.4"
+    assert __version__ == "0.9.5"
 
 
 def test_lower_bound():
@@ -169,6 +169,44 @@ def test_seek_over_nonoverlapping():
         for fiv in lapper.seek(iv.start, iv.stop, cursor):
             total += 1
     assert total == len(lapper.intervals)
+
+
+def test_seek_over_overlapping():
+    """Test that seeking for all intervals over self == len(self)"""
+    lapper = setup_overlapping()
+    cursor = Cursor(0)
+    total = 0
+    for iv in lapper:
+        for fiv in lapper.seek(iv.start, iv.stop, cursor):
+            total += 1
+    assert total == 28
+
+
+def test_find_over_overlapping():
+    """Test that seeking for all intervals over self == len(self)"""
+    lapper = setup_overlapping()
+    total = 0
+    for iv in lapper:
+        for fiv in lapper.find(iv.start, iv.stop):
+            total += 1
+    assert total == 28
+
+
+def test_seek_over_short_stop():
+    """Test that seek is not stopping early"""
+    lapper = Lapper([Interval(0, 1, 0), Interval(0, 1, 0), Interval(1, 2, 0),])
+    cursor = Cursor(0)
+
+    seek_total = 0
+    for iv in lapper:
+        for fiv in lapper.seek(iv.start, iv.stop, cursor):
+            seek_total += 1
+    find_total = 0
+    for iv in lapper:
+        for fiv in lapper.find(iv.start, iv.stop):
+            find_total += 1
+    assert seek_total == 5
+    assert find_total == 5
 
 
 def test_bad_skips():

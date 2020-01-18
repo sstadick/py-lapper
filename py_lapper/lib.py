@@ -123,9 +123,8 @@ class Lapper(object):
         """Iterate over Intervals that overlap the input `start` and `stop` site."""
         offset = self.lower_bound(start - self.max_len, self.intervals)
 
-        while offset < len(self.intervals):
-            interval = self.intervals[offset]
-            offset += 1
+        for i in range(offset, len(self.intervals)):
+            interval = self.intervals[i]
             if interval.start >= stop:
                 break
             elif interval.overlap_pos(start, stop):
@@ -148,12 +147,10 @@ class Lapper(object):
             and self.intervals[cursor.index + 1].start < start - self.max_len
         ):
             cursor.index += 1
-        offset = cursor.index
 
-        while offset < len(self.intervals):
-            interval = self.intervals[offset]
-            offset += 1
-            if offset >= stop:
+        for i in range(cursor.index, len(self.intervals)):
+            interval = self.intervals[i]
+            if interval.start >= stop:
                 break
             elif interval.overlap_pos(start, stop):
                 yield interval
